@@ -29,7 +29,7 @@
         pages: [],
         pageNumber: 1,
         results: [],
-        perPage: 10,
+        perPage: 50,
         loading: true,
         error: null
       },
@@ -231,14 +231,7 @@
 <body>
   <h1>Search engine by Atticus</h1>
   <p class="lead">A simple search engine to search drive links</a>.</p>
-<table border="0" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr style=""><td height="28" style="line-height:28px;">&nbsp;</td></tr><tr><td style=""><table border="0" width="280" cellspacing="0" cellpadding="0" style="border-collapse:separate;background-color:#ffffff;border:1px solid #dddfe2;border-radius:3px;font-family:Helvetica, Arial, sans-serif;margin:0px auto;"><tr style="padding-bottom: 8px;"><td style=""><img class="img" src="https://scontent.fmaa1-4.fna.fbcdn.net/v/t1.0-0/q83/c0.0.572.298/p320x320/31301922_1817317694985746_8111029645253541888_n.jpg?_nc_cat=109&amp;_nc_ht=scontent.fmaa1-4.fna&amp;oh=e158cdaeebf85395985860403cf7fbdb&amp;oe=5C71EFAF" width="280" height="146" alt="" /></td></tr><tr><td style="font-size:14px;font-weight:bold;padding:8px 8px 0px 8px;text-align:center;">STRONGER DC for BPHC</td></tr><tr><td style="color:#90949c;font-size:12px;font-weight:normal;text-align:center;">Facebook Group · 4,650 members</td></tr><tr><td style="padding:8px 12px 12px 12px;"><table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;"><tr><td style="background-color:#4267b2;border-radius:3px;text-align:center;"><a style="color:#3b5998;text-decoration:none;cursor:pointer;width:100%;" href="https://www.facebook.com/plugins/group/join/popup/?group_id=422687681110525&amp;source=email_campaign_plugin" target="_blank" rel="noopener"><table border="0" cellspacing="0" cellpadding="3" align="center" style="border-collapse:collapse;"><tr><td style="border-bottom:3px solid #4267b2;border-top:3px solid #4267b2;"><img width="16" src="https://facebook.com/images/groups/plugin/email/app_fb_32_fig_white.png" /></td><td style="border-bottom:3px solid #4267b2;border-top:3px solid #4267b2;color:#FFF;font-family:Helvetica, Arial, sans-serif;font-size:12px;font-weight:bold;">Join Group</td></tr></table></a></td></tr></table></td></tr><tr><td style="border-top:1px solid #dddfe2;font-size:12px;padding:8px 12px;">New group rules:
-http://tiny.cc/new-rules
 
-Put your download requests here!
-OR
-https://www.facebook.com/groups/bphcdc/permalink/1982992955079982/
-
-Fin...</td></tr></table></td></tr><tr style=""><td height="14" style="line-height:14px;">&nbsp;</td></tr></table>
   <div id="vueSearch" v-cloak>
     <div class="input-group mb-3">
       <div class="input-group-prepend">
@@ -246,7 +239,7 @@ Fin...</td></tr></table></td></tr><tr style=""><td height="14" style="line-heigh
       </div>
       <input type="text" id="txtQuery" v-model="search" class="form-control" placeholder="whatever you want to search for...">
     </div>
-
+    
     <div v-for="(link, linkIndex) in results" v-bind:style="linkIndex + 1 < results.length ? 'margin-bottom: 1em;' : ''">
       <div style="font-size: 1.25em;"><a v-bind:href="link.url" target="_blank" v-html="link.title"></a></div>
       <div v-html="link.description"></div>
@@ -272,5 +265,13 @@ Fin...</td></tr></table></td></tr><tr style=""><td height="14" style="line-heigh
       </div>
     </div>
   </div>
+<table border="0" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr style=""><td height="28" style="line-height:28px;">&nbsp;</td></tr><tr><td style=""><table border="0" width="280" cellspacing="0" cellpadding="0" style="border-collapse:separate;background-color:#ffffff;border:1px solid #dddfe2;border-radius:3px;font-family:Helvetica, Arial, sans-serif;margin:0px auto;"><tr style="padding-bottom: 8px;"><td style=""><img class="img" src="https://scontent.fmaa1-4.fna.fbcdn.net/v/t1.0-0/q83/c0.0.572.298/p320x320/31301922_1817317694985746_8111029645253541888_n.jpg?_nc_cat=109&amp;_nc_ht=scontent.fmaa1-4.fna&amp;oh=e158cdaeebf85395985860403cf7fbdb&amp;oe=5C71EFAF" width="280" height="146" alt="" /></td></tr><tr><td style="font-size:14px;font-weight:bold;padding:8px 8px 0px 8px;text-align:center;">STRONGER DC for BPHC</td></tr><tr><td style="color:#90949c;font-size:12px;font-weight:normal;text-align:center;">Facebook Group · 4,650 members</td></tr><tr><td style="padding:8px 12px 12px 12px;"><table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;"><tr><td style="background-color:#4267b2;border-radius:3px;text-align:center;"><a style="color:#3b5998;text-decoration:none;cursor:pointer;width:100%;" href="https://www.facebook.com/plugins/group/join/popup/?group_id=422687681110525&amp;source=email_campaign_plugin" target="_blank" rel="noopener"><table border="0" cellspacing="0" cellpadding="3" align="center" style="border-collapse:collapse;"><tr><td style="border-bottom:3px solid #4267b2;border-top:3px solid #4267b2;"><img width="16" src="https://facebook.com/images/groups/plugin/email/app_fb_32_fig_white.png" /></td><td style="border-bottom:3px solid #4267b2;border-top:3px solid #4267b2;color:#FFF;font-family:Helvetica, Arial, sans-serif;font-size:12px;font-weight:bold;">Join Group</td></tr></table></a></td></tr></table></td></tr><tr><td style="border-top:1px solid #dddfe2;font-size:12px;padding:8px 12px;">New group rules:
+http://tiny.cc/new-rules
+
+Put your download requests here!
+OR
+https://www.facebook.com/groups/bphcdc/permalink/1982992955079982/
+
+Fin...</td></tr></table></td></tr><tr style=""><td height="14" style="line-height:14px;">&nbsp;</td></tr></table>
 </body>
 </html>
