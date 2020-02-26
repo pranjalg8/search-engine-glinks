@@ -18,6 +18,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
   <script type="text/javascript">
+    
   $(function() {
     var GSHEET_JSON_URL = 'https://spreadsheets.google.com/feeds/list/1n6WmxPxMbG5ZYflAJ4CuvHnlwUQntNTaU8E5b1Ooci4/1/public/values?alt=json';
     
@@ -199,15 +200,14 @@
     });
   });
 
-  /*
-   YourJS - Your Very Own JS Library
-   http://yourjs.com
-
-   Copyright (c) 2015-2017 Christopher West
-   Licensed under the MIT license.
-  */
+  
   (function(h,c,k){function l(a,b){return function(){return a[b].apply(a,arguments)}}var g=this,m;(function(a,b){m=function(){b||(b=1,g[c]=a);return d}})(g[c]);var n=l([].slice,"call");var d={alias:l,clamp:function(a,b,f){return a<b?b:a>f?f:a},info:function(){return{name:c,version:h,toString:d.toString}},matchAll:function(a,b,f){var c=0,d=[];a.replace(b,function(e){e=n(arguments,0,-1);e.index=e.pop();e.input=a;e.source=b;f&&(e=f(e,++c));e!==k&&d.push(e)});return d.length?d:null},noConflict:m,quoteRegExp:function(a,
   b){var c=a.replace(/[[\](){}.+*^$|\\?-]/g,"\\$&");return""===b||b?new RegExp(c,!0===b?"":b):c},slice:n,toString:function(){return"YourJS v"+h+" ("+c+")"}};[].forEach(function(a){a()});"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(exports=module.exports=d),(exports[c]=d)[c]=k):g[c]=d})("2.2.0","YourJS");
+  
+  function showImage(){
+        document.getElementById('loadingImage').style.visibility="visible";
+    }
+    
   </script>
 
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
@@ -285,6 +285,8 @@
 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5ce8f2b41e9bb4cf"></script>
 
 <div class="addthis_tipjar_inline"></div>
-            
+<input type="button" value="Show Button" onclick="showImage();"/>
+    <img id="loadingImage" src="Screenshot_20200226-131519__01.jpg" style="visibility:hidden"/>
+
 </body>
 </html>
