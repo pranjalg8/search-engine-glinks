@@ -10,22 +10,22 @@
 
   gtag('config', 'UA-127034301-2');
 </script>
-  
+
   <title>Search engine by Atticus</title>
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
   <script type="text/javascript">
-    
+
   $(function() {
     var GSHEET_JSON_URL = 'https://spreadsheets.google.com/feeds/list/1n6WmxPxMbG5ZYflAJ4CuvHnlwUQntNTaU8E5b1Ooci4/1/public/values?alt=json';
-    
+
     var vueSearch = new Vue({
       el: '#vueSearch',
       data: {
-        search: '""',
+        search: '',
         links: [],
         pages: [],
         pageNumber: 1,
@@ -200,14 +200,19 @@
     });
   });
 
-  
+
   (function(h,c,k){function l(a,b){return function(){return a[b].apply(a,arguments)}}var g=this,m;(function(a,b){m=function(){b||(b=1,g[c]=a);return d}})(g[c]);var n=l([].slice,"call");var d={alias:l,clamp:function(a,b,f){return a<b?b:a>f?f:a},info:function(){return{name:c,version:h,toString:d.toString}},matchAll:function(a,b,f){var c=0,d=[];a.replace(b,function(e){e=n(arguments,0,-1);e.index=e.pop();e.input=a;e.source=b;f&&(e=f(e,++c));e!==k&&d.push(e)});return d.length?d:null},noConflict:m,quoteRegExp:function(a,
   b){var c=a.replace(/[[\](){}.+*^$|\\?-]/g,"\\$&");return""===b||b?new RegExp(c,!0===b?"":b):c},slice:n,toString:function(){return"YourJS v"+h+" ("+c+")"}};[].forEach(function(a){a()});"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(exports=module.exports=d),(exports[c]=d)[c]=k):g[c]=d})("2.2.0","YourJS");
-  
-  function showImage(){
-        document.getElementById('loadingImage').style.visibility="visible";
+
+  function showImage(id){
+        if(document.getElementById(id).style.visibility=="hidden"){
+          document.getElementById(id).style.visibility="visible";
+        }
+        else{
+          document.getElementById(id).style.visibility="hidden";
+        }
     }
-    
+
   </script>
 
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
@@ -239,15 +244,16 @@
   <body>
   <p align = 'center'><img src="icon.png" height='120' width='180' align="middle"></p>
   <p align ='center' class="lead">A search engine to search drive links</a>.</p>
-  <p align = 'center' class="lead">Links provided by 
-  <a href = "https://www.facebook.com/pranjalg8" target=”_blank”>Atticus</a>, 
+  <p align = 'center' class="lead">Links provided by
+  <a href = "https://www.facebook.com/pranjalg8" target=”_blank”>Atticus</a>,
   <a href = "https://www.facebook.com/akhilsaiaraja" target=”_blank”>President_SU</a>,
-  <a href = "https://www.facebook.com/akshat02" target=”_blank”>alexian007</a>, 
-  <a href = "https://www.facebook.com/profile.php?id=100006355984253" target=”_blank”>Pawnstar</a>, 
-  <a href = "https://www.facebook.com/shubhang.srivastava.iamsimplyawesome" target=”_blank”>Barbarika</a> and 
-  <a href = "https://www.facebook.com/dev.ddm.9" target=”_blank”>Frac36</a></a>.</p> 
-  <p align = 'center' class="lead"><B> In case any link doesn't work, please open in incognito with your G-Suite mail</B> Still issues, please <a href = "https://m.me/pranjalg8" target=”_blank”>report</a>.</p> 
-  <p align = 'center' class="lead"> Please try putting search query in quotes in case you don't find your result. Eg. <B>"The man from earth"</B> instead of just <B>The man from earth</B> </p>
+  <a href = "https://www.facebook.com/akshat02" target=”_blank”>alexian007</a>,
+  <a href = "https://www.facebook.com/profile.php?id=100006355984253" target=”_blank”>Pawnstar</a>,
+  <a href = "https://www.facebook.com/shubhang.srivastava.iamsimplyawesome" target=”_blank”>Barbarika</a> and
+  <a href = "https://www.facebook.com/dev.ddm.9" target=”_blank”>Frac36</a></a>.</p>
+  <p align = 'center' class="lead"><B> In case any link doesn't work, please open in incognito with your G-Suite mail</B>. Please report broken links <a href = "https://forms.gle/Coc6qbCARvLdFoH2A" target=”_blank”>here</a> so i can fix it.</p>
+  <p align = 'center' class="lead">If you want to report any issues apart from broken links, you can reach out to me <a href = "https://m.me/pranjalg8" target=”_blank”>here</a></p>
+  <p align = 'center' class="lead"> Please try putting search query in quotes in case you don't find your result. Eg. <B>"The man from earth"</B> instead of just <B>The man from earth</B>. FYI: The search also supports regex.</p>
   <div id="vueSearch" v-cloak>
     <div align='center' class="input-group mb-3">
       <div align='center' class="input-group-prepend">
@@ -255,7 +261,7 @@
       </div>
       <input type="text" id="txtQuery" v-model="search" class="form-control" placeholder="whatever you want to search for...">
     </div>
-    
+
     <div v-for="(link, linkIndex) in results" v-bind:style="linkIndex + 1 < results.length ? 'margin-bottom: 1em;' : ''">
       <div style="font-size: 1.25em;"><a v-bind:href="link.url" target="_blank" v-html="link.title"></a></div>
       <div v-html="link.description"></div>
@@ -282,11 +288,16 @@
     </div>
   </div>
 
+<div class="text-center">
+  <input type="button" value="Donate via GPay" onclick="showImage('image-gpay');"/>
+  <input type="button" value="Donate via PhonePe" onclick="showImage('image-phonepe');"/>
+  <div align='center'>
+      <img id="image-gpay" src="Screenshot_20200226-131519__01.jpg" width="30%" height="30%" style="visibility:hidden"/>
+      <img id="image-phonepe" src="downloadPhonePeQR.png" width="30%" height="30%" style="visibility:hidden"/>
+  </div>  
+</div>
+
 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5ce8f2b41e9bb4cf"></script>
-
-<div class="addthis_tipjar_inline"><input type="button" value="Donate via GPay" onclick="showImage();"/>
-    <img id="loadingImage" src="Screenshot_20200226-131519__01.jpg" style="visibility:hidden"/></div>
-
 
 </body>
 </html>
