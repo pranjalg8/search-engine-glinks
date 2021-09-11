@@ -1,5 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Global site tag (gtag.js) - Google Analyticss -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127034301-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-127034301-2');
+</script>
+
+  <title>Search engine by Atticus</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+  <script type="text/javascript">
+
+  $(function() {
+    var GSHEET_JSON_URL = 'https://sheets.googleapis.com/v4/spreadsheets/1NwbG6UKs6Q6TDssLzrHlmMzs2ZbPkDi65wPoBacjHLY/values/Main?alt=json&key=AIzaSyA95ZYZVc-ZSmw69opH-06BGoLFqJTZRY0';
+
+    var vueSearch = new Vue({
+      el: '#vueSearch',
+      data: {
+        search: '',
+        links: [],
+        pages: [],
+        pageNumber: 1,
+        results: [],
+        perPage: 12,
+        loading: true,
+        error: null
+      },
+      methods: {
+        changePage: function(number) {
+          location.href = '#vueSearch';
+          this.pageNumber = number;
+          this.updateResults();
+        },
+        updateResults: function() {
+          var self = this;
+
+          // Clear all previous paging data
+          self.pages.splice(0, Infinity);
+
+          // Get an array of search terms as regexes
+          var searchTerms = [];
+          self.search.replace(
+            /([+\-])?(?:"([^"]+)"|(\/((?:[^\/]|\\.)+)\/(i?)|[\S]+))/g,
+            function(m, must, quoted, nonQuoted, rgxText, rgxOpts) {
+              var realRgxText = rgxText;
+              if (rgxText) {
+                try {
+                  new RegExp(rgxText);
+                }
+                catch (e) {
+                  rgxText = null;
+                }
+              }
+
+              rgxText = rgxText || (
+                ((quoted ? /^\b/.test(quoted) : !realRgxText) ? '\\b' : '')
+                + YourJS.quoteRegExp(quoted || nonQuoted)
+                + ((quoted && /\b$/.test(quoted)) ? '\\b' : '')
+              );
+
+              searchTerms.push({
+                type: realRgxText ? 'regex' : 'string',
+                rgx: new RegExp(rgxText, (realRgxText ? rgxOpts : 'i') + 'g'),
+                must: must == '+'
+                  ? true
+                  : must == '-'
+                    ? false
+                    : undefined
+              });
+            }
+          );
+
+          // Get the resulting list of links based on the scores.
+          var results = self.links
+            .reduce(function(scores, link, linkIndex) {
+              var score = searchTerms.reduce(function(score, searchTerm) {
+                if (score !== false) {
+                  var matchesTitle = (link.title.match(searchTerm.rgx) || '').length;
+                  var matchesURL = (link.url.match(searchTerm.rgx) || '').length;
+                  var matchesDescr = ((link.description || '').match(searchTerm.rgx) || '').length;
+                  var matchesKeywords = ((link.keywords || '').match(searchTerm.rgx) || '').length;
+                  var matchesAny = !!(matchesTitle || matchesURL || matchesDescr || matchesKeywords);
+                  return searchTerm.must !== !matchesAny
+                    ? searchTerm.must !== false
+                      ? matchesTitle * 8 + matchesURL * 4 + matchesDescr * 2 + matchesKeywords * 1
+                      : 1
+                    : false;
+                }
+                return score;
+              }, searchTerms.length ? 0 : 1);
+              if (score) {
+                scores.push({ link: link, score: score, index: linkIndex });
+              }
+              return scores;
+            }, [])
+            .sort(function(a, b) { return (b.score - a.score) || (b.index - a.index); })
+            .map(function(score) { return score.link; });
+
+          // Setup the paging data
+          var pageCount = Math.max(1, Math.ceil(results.length / self.perPage));
+          var pageNumber = self.pageNumber = YourJS.clamp(self.pageNumber, 1, pageCount);
+          if (pageNumber > 1) {
+            self.pages.push(self.getPageObject(1, results));
+          }
+          if (pageNumber > 2) {
+            self.pages.push(self.getPageObject(pageNumber - 1, results));
+          }
+          self.pages.push(self.getPageObject(pageNumber, results));
+          if (pageNumber + 1 < pageCount) {
+            self.pages.push(self.getPageObject(pageNumber + 1, results));
+          }
+          if (pageNumber < pageCount) {
+            self.pages.push(self.getPageObject(pageCount, results));
+          }
+
+          // Set self.results to only the results that are shown in the current page.
+          self.results = results.slice((pageNumber - 1) * self.perPage, pageNumber * self.perPage).map(function(link) {
+            link = jQuery.extend({}, link);
+            return {
+              title: self.markTerms(link.title, searchTerms),
+              description: self.markTerms(link.description, searchTerms),
+              url: link.url
+            };
+          });
+        },
+        markTerms: function(strIn, terms) {
+          return terms
+            .reduce(function(str, term) {
+              return (YourJS.matchAll(strIn, term.rgx) || []).reduce(function(str, termMatch) {
+                return str.replace(
+                  new RegExp('((?:[\\x01\\x02]*[^\\x01\\x02]){' + termMatch.index + '})((?:[\\x01\\x02]*[^\\x01\\x02]){' + (termMatch[0].length) + '})'),
+                  '$1\x01$2\x02'
+                );
+              }, str);
+            }, strIn)
+            .replace(/\x01/g, '<div class="highlight">').replace(/\x02/g, '</div>');
+        },
+        getPageObject: function(pageNumber, results) {
+          return {
+            text: pageNumber,
+            number: pageNumber,
+            caption: Math.min(results.length, 1 + (pageNumber - 1) * this.perPage) + ' to ' + Math.min(results.length, pageNumber * this.perPage)
+          };
+        }
+      },
+      watch: {
+        search: function(newValue, oldValue) {
+          this.pageNumber = 1;
+          this.updateResults();
+        }
+      },
+      mounted: function () {
+        $.ajax({
+          dataType: "json",
+          url: GSHEET_JSON_URL + '&cache-buster=' + Math.random(),
+          success: function(data) {
+
+            if (data && data.feed && data.feed.entry && data.feed.entry[0]) {
+              var missing = ['url', 'title', 'description', 'keywords'].filter(function(name) {
+                return !data.feed.entry[0]['gsx$' + name];
+              });
+              if (missing[0]) {
+                vueSearch.error = 'You must add the "`' + missing.join('`", "`').replace(/, (?!.*,)/, ', and ') + '`" field' + (missing[1] ? 's' : '') + '.';
+                return;
+              }
+            }
+            else {
+              vueSearch.error = 'The specified GSHEET_JSON_URL is invalid:<br>`' + GSHEET_JSON_URL + '`';
+              return;
+            }
+
+            data.feed.entry.forEach(function(entry) {
+              vueSearch.links.push({
+                url: entry.gsx$url.$t,
+                title: entry.gsx$title.$t,
+                description: entry.gsx$description.$t,
+                keywords: entry.gsx$keywords.$t
+              });
+            });
+            vueSearch.loading = false;
+            vueSearch.updateResults();
+          },
+          error: function() {
+            vueSearch.error = 'The specified GSHEET_JSON_URL does not contain JSON:<br>`' + GSHEET_JSON_URL + '`';
+            vueSearch.loading = false;
+          }
+        });
+
+        // Set focus to search box
+        $('#txtQuery').select();
+      }
+    });
+  });
+
+
+  (function(h,c,k){function l(a,b){return function(){return a[b].apply(a,arguments)}}var g=this,m;(function(a,b){m=function(){b||(b=1,g[c]=a);return d}})(g[c]);var n=l([].slice,"call");var d={alias:l,clamp:function(a,b,f){return a<b?b:a>f?f:a},info:function(){return{name:c,version:h,toString:d.toString}},matchAll:function(a,b,f){var c=0,d=[];a.replace(b,function(e){e=n(arguments,0,-1);e.index=e.pop();e.input=a;e.source=b;f&&(e=f(e,++c));e!==k&&d.push(e)});return d.length?d:null},noConflict:m,quoteRegExp:function(a,
+  b){var c=a.replace(/[[\](){}.+*^$|\\?-]/g,"\\$&");return""===b||b?new RegExp(c,!0===b?"":b):c},slice:n,toString:function(){return"YourJS v"+h+" ("+c+")"}};[].forEach(function(a){a()});"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(exports=module.exports=d),(exports[c]=d)[c]=k):g[c]=d})("2.2.0","YourJS");
+
+  function showImage(id){
+        if(document.getElementById(id).style.visibility=="hidden"){
+          document.getElementById(id).style.visibility="visible";
+        }
+        else{
+          document.getElementById(id).style.visibility="hidden";
+        }
+    }
+
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+  <style type="text/css">
+  body {
+    padding: 10px;
+  }
+  [v-cloak] { display: none; }
+  div.highlight {
+    display: inline;
+    box-shadow: 0 0 0.5em red;
+    padding: 0.125em;
+    border-radius: 0.5em;
+  }
+  .btn {
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0.2) 49%, rgba(0,0,0,0.15) 51%, rgba(0,0,0,0.05));
+    background-repeat: repeat-x;
+  }
+  </style>
+  <!--Google Fonts-->
+<link href='https://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Raleway:400,300,700,900' rel='stylesheet' type='text/css'>
+<!--Font Awesome-->
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+<div class="overlay"></div>
+</head>
+
 <body>
-    <p align = 'center'><img src="https://wearepf.com/wp-content/uploads/2016/08/RIP-1024x1024.png" height='120' width='180' align="middle"></p>
+    
   <p align = 'center'><img src="icon.png" height='120' width='180' align="middle"></p>
   <p align ='center' class="lead">A search engine to search drive links</a>.</p>
   <p align = 'center' class="lead">Links provided by
@@ -14,8 +258,13 @@
   <a href = "https://www.facebook.com/gursimran.singh.52438" target=”_blank”>Maou-Sama</a>,
   BabaYaga and
   <a href = "https://www.facebook.com/dev.ddm.9" target=”_blank”>Frac36</a></a>.</p>
-  <p align = 'center' class="lead"><B> In case any link doesn't work, please open in incognito with your G-Suite mail</B>. Please report broken links <a href = "https://forms.gle/Coc6qbCARvLdFoH2A" target=”_blank”>here</a> so i can fix it.</p>
-  <p align = 'center' class="lead">If you want to report any issues apart from broken links, you can reach out to me <a href = "https://m.me/pranjalg8" target=”_blank”>here</a></p>
-  <p align = 'center' class="lead"> Please try putting search query in quotes in case you don't find your result. Eg. <B>"The man from earth"</B> instead of just <B>The man from earth</B>. FYI: The search also supports regex.</p>
-  <p align = 'center' class="lead"> Didn't find what you were looking for? Well we are also taking in requests now!! Make a request for your thing <a href="https://forms.gle/ct3SjWeRUNjBLzMm7" target=”_blank”> here </a> and we'll try to load it up soon!.</p>
+  <p align = 'center'><img src="https://wearepf.com/wp-content/uploads/2016/08/RIP-1024x1024.png" height='600' width='800' align="middle"></p>
+
+
+
+
+</div>
+
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5ce8f2b41e9bb4cf"></script>
 </body>
+</html>
